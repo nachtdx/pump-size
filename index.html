@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pump Sizing Calculator - CheCalc Algorithm</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container-fluid p-0">
+    <div class="row g-0">
+        <!-- SIDEBAR INPUT -->
+        <div class="col-md-5 col-lg-4 sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-pump-water me-2"></i> Pump Sizing Calculator
+                <small class="d-block text-white-50">CheCalc Algorithm · Centrifugal Pump</small>
+            </div>
+            <div class="sidebar-content">
+
+                <!-- Project Info -->
+                <div class="card card-custom">
+                    <div class="card-header bg-primary text-white"><i class="fas fa-folder-open me-1"></i> Project Information</div>
+                    <div class="card-body">
+                        <div class="row g-2">
+                            <div class="col-6"><label class="form-label-sm">Kode Alat</label><input type="text" class="form-control form-control-sm" id="kodeAlat" value="P-101"></div>
+                            <div class="col-6"><label class="form-label-sm">PIC</label><input type="text" class="form-control form-control-sm" id="pic" value="User"></div>
+                            <div class="col-6"><label class="form-label-sm">Date</label><input type="text" class="form-control form-control-sm" id="calcDate" value=""></div>
+                            <div class="col-6"><label class="form-label-sm">Revision</label><input type="text" class="form-control form-control-sm" id="revision" value="0"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fluid Data -->
+                <div class="card card-custom">
+                    <div class="card-header bg-success text-white"><i class="fas fa-droplet me-1"></i> Fluid Data</div>
+                    <div class="card-body">
+                        <div class="row g-2">
+                            <div class="col-6"><label class="form-label-sm">Flowrate (Q)</label><div class="input-group input-group-sm"><input type="number" class="form-control" id="flowrate" value="100" step="10"><span class="input-group-text">m³/jam</span></div></div>
+                            <div class="col-6"><label class="form-label-sm">Density (ρ)</label><div class="input-group input-group-sm"><input type="number" class="form-control" id="density" value="1000" step="10"><span class="input-group-text">kg/m³</span></div></div>
+                            <div class="col-6"><label class="form-label-sm">Viscosity (μ)</label><div class="input-group input-group-sm"><input type="number" class="form-control" id="viscosity" value="1.00" step="0.1"><span class="input-group-text">cP</span></div></div>
+                            <div class="col-6"><label class="form-label-sm">Vapor Pressure</label><div class="input-group input-group-sm"><input type="number" class="form-control" id="vaporPressure" value="0.34" step="0.1"><span class="input-group-text">psi</span></div></div>
+                            <div class="col-6"><label class="form-label-sm">Pump Efficiency</label><div class="input-group input-group-sm"><input type="number" class="form-control" id="pumpEfficiency" value="75" step="1"><span class="input-group-text">%</span></div></div>
+                            <div class="col-6"><label class="form-label-sm">Pipe Roughness</label><div class="input-group input-group-sm"><input type="number" class="form-control" id="pipeRoughness" value="0.046" step="0.001"><span class="input-group-text">mm</span></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Suction Conditions -->
+                <div class="card card-custom">
+                    <div class="card-header bg-info text-white"><i class="fas fa-arrow-down me-1"></i> Suction Conditions</div>
+                    <div class="card-body">
+                        <div class="row g-2">
+                            <div class="col-6"><label class="form-label-sm">Tekanan Operasi</label><div class="input-group input-group-sm"><input type="number" class="form-control" id="suctionOpPress" value="1.0" step="0.1"><span class="input-group-text">atm</span></div></div>
+                            <div class="col-6"><label class="form-label-sm">Static Head (z₁)</label><div class="input-group input-group-sm"><input type="number" class="form-control" id="suctionStaticHead" value="3" step="0.5"><span class="input-group-text">m</span></div></div>
+                            <div class="col-6"><label class="form-label-sm">Equipment Loss</label><div class="input-group input-group-sm"><input type="number" class="form-control" id="suctionEqLoss" value="0" step="0.1"><span class="input-group-text">psi</span></div></div>
+                            <div class="col-6"><label class="form-label-sm">Panjang Pipa</label><div class="input-group input-group-sm"><input type="number" class="form-control" id="suctionLength" value="10" step="1"><span class="input-group-text">m</span></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Discharge Conditions -->
+                <div class="card card-custom">
+                    <div class="card-header bg-warning text-dark"><i class="fas fa-arrow-up me-1"></i> Discharge Conditions</div>
+                    <div class="card-body">
+                        <div class="row g-2">
+                            <div class="col-6"><label class="form-label-sm">Tekanan Operasi</label><div class="input-group input-group-sm"><input type="number" class="form-control" id="dischargeOpPress" value="3.0" step="0.1"><span class="input-group-text">atm</span></div></div>
+                            <div class="col-6"><label class="form-label-sm">Static Head (z₂)</label><div class="input-group input-group-sm"><input type="number" class="form-control" id="dischargeStaticHead" value="15" step="0.5"><span class="input-group-text">m</span></div></div>
+                            <div class="col-6"><label class="form-label-sm">Equipment Loss</label><div class="input-group input-group-sm"><input type="number" class="form-control" id="dischargeEqLoss" value="2" step="0.1"><span class="input-group-text">psi</span></div></div>
+                            <div class="col-6"><label class="form-label-sm">Panjang Pipa</label><div class="input-group input-group-sm"><input type="number" class="form-control" id="dischargeLength" value="50" step="1"><span class="input-group-text">m</span></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pipe Dimensions -->
+                <div class="card card-custom">
+                    <div class="card-header bg-dark text-white"><i class="fas fa-circle-dot me-1"></i> Dimensi Pipa (SCH 40)</div>
+                    <div class="card-body">
+                        <div class="row g-2">
+                            <div class="col-6"><label class="form-label-sm">Suction NPS</label><select class="form-select form-select-sm" id="suctionPipe"><option value="0.5,0.622">0.5", ID 0.622"</option><option value="0.75,0.824">0.75", ID 0.824"</option><option value="1,1.049">1", ID 1.049"</option><option value="1.5,1.61">1.5", ID 1.61"</option><option value="2,2.067">2", ID 2.067"</option><option value="2.5,2.469">2.5", ID 2.469"</option><option value="3,3.068">3", ID 3.068"</option><option value="4,4.026" selected>4", ID 4.026"</option><option value="6,6.065">6", ID 6.065"</option><option value="8,7.981">8", ID 7.981"</option><option value="10,10.02">10", ID 10.02"</option><option value="12,12.0">12", ID 12.0"</option></select></div>
+                            <div class="col-6"><label class="form-label-sm">Discharge NPS</label><select class="form-select form-select-sm" id="dischargePipe"><option value="0.5,0.622">0.5", ID 0.622"</option><option value="0.75,0.824">0.75", ID 0.824"</option><option value="1,1.049">1", ID 1.049"</option><option value="1.5,1.61">1.5", ID 1.61"</option><option value="2,2.067">2", ID 2.067"</option><option value="2.5,2.469">2.5", ID 2.469"</option><option value="3,3.068">3", ID 3.068"</option><option value="4,4.026" selected>4", ID 4.026"</option><option value="6,6.065">6", ID 6.065"</option><option value="8,7.981">8", ID 7.981"</option><option value="10,10.02">10", ID 10.02"</option><option value="12,12.0">12", ID 12.0"</option></select></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FITTINGS SECTION — Customizable -->
+                <div class="card card-custom">
+                    <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-cog me-1"></i> Pipe Fittings (Kustom)</span>
+                        <small class="text-white-50">Le/D: Crane TP-410</small>
+                    </div>
+                    <div class="card-body p-0">
+                        <!-- Tab Nav -->
+                        <ul class="nav nav-tabs nav-sm px-2 pt-2" id="fittingTabs">
+                            <li class="nav-item"><a class="nav-link active py-1 px-3" href="#" data-tab="suction">Suction</a></li>
+                            <li class="nav-item"><a class="nav-link py-1 px-3" href="#" data-tab="discharge">Discharge</a></li>
+                        </ul>
+
+                        <!-- Suction Fittings Panel -->
+                        <div id="panel-suction" class="fitting-panel p-2">
+                            <div id="suction-fittings-list"></div>
+                            <div class="d-flex gap-1 mt-2">
+                                <select class="form-select form-select-sm flex-grow-1" id="suction-fitting-select"></select>
+                                <button class="btn btn-sm btn-outline-secondary" id="suction-add-btn" title="Tambah Fitting"><i class="fas fa-plus"></i></button>
+                            </div>
+                            <div class="fitting-total-bar mt-2">
+                                <span class="text-muted" style="font-size:0.7rem">Total Le Suction:</span>
+                                <span id="suction-total-le" class="fw-bold" style="font-size:0.7rem">— m</span>
+                            </div>
+                        </div>
+
+                        <!-- Discharge Fittings Panel -->
+                        <div id="panel-discharge" class="fitting-panel p-2" style="display:none">
+                            <div id="discharge-fittings-list"></div>
+                            <div class="d-flex gap-1 mt-2">
+                                <select class="form-select form-select-sm flex-grow-1" id="discharge-fitting-select"></select>
+                                <button class="btn btn-sm btn-outline-secondary" id="discharge-add-btn" title="Tambah Fitting"><i class="fas fa-plus"></i></button>
+                            </div>
+                            <div class="fitting-total-bar mt-2">
+                                <span class="text-muted" style="font-size:0.7rem">Total Le Discharge:</span>
+                                <span id="discharge-total-le" class="fw-bold" style="font-size:0.7rem">— m</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Motor Selection -->
+                <div class="card card-custom">
+                    <div class="card-header bg-danger text-white"><i class="fas fa-bolt me-1"></i> Motor & Speed</div>
+                    <div class="card-body">
+                        <div class="row g-2">
+                            <div class="col-6"><label class="form-label-sm">Motor Type</label><select class="form-select form-select-sm" id="motorType"><option value="220V, 1 Phase">220 V-AC, 1 Phase, 50 Hz</option><option value="380V, 3 Phase" selected>380 V-AC, 3 Phase, 50 Hz</option></select></div>
+                            <div class="col-6"><label class="form-label-sm">Jumlah Kutub (P)</label><select class="form-select form-select-sm" id="motorPoles"><option value="2">2 Pole (3000 rpm)</option><option value="4">4 Pole (1500 rpm)</option><option value="6" selected>6 Pole (1000 rpm)</option><option value="8">8 Pole (750 rpm)</option></select></div>
+                            <div class="col-6"><label class="form-label-sm">Slip Motor</label><div class="input-group input-group-sm"><input type="number" class="form-control" id="slip" value="2" step="0.5"><span class="input-group-text">%</span></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="d-grid gap-2 mt-3 mb-4">
+                    <button class="btn btn-primary btn-lg" id="calculateBtn"><i class="fas fa-calculator me-2"></i> Calculate Pump Sizing</button>
+                    <button class="btn btn-success" id="exportBtn" disabled><i class="fas fa-file-excel me-2"></i> Export to .XLSX</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MAIN CONTENT RESULTS -->
+        <div class="col-md-7 col-lg-8 main-content">
+            <div id="noResults" class="text-center text-muted mt-5 pt-5">
+                <i class="fas fa-pump-water fa-4x mb-3 text-primary opacity-25"></i>
+                <h5 class="mt-3">Masukkan parameter pompa dan klik<br>"Calculate Pump Sizing"</h5>
+                <p class="small mt-2">Termasuk Pressure Drop, Head Components, dan Fittings Kustom</p>
+            </div>
+            <div id="resultsContainer" style="display: none;">
+
+                <!-- Summary Card -->
+                <div class="result-card">
+                    <div class="result-card-header"><i class="fas fa-chart-pie me-2"></i> Pump Sizing Summary</div>
+                    <div class="result-card-body"><div id="summaryGrid" class="summary-grid"></div></div>
+                </div>
+
+                <!-- ΔP Summary Card -->
+                <div class="result-card">
+                    <div class="result-card-header" style="color:#e74c3c"><i class="fas fa-compress-arrows-alt me-2"></i> Pressure Drop Summary (ΔP)</div>
+                    <div class="result-card-body">
+                        <div id="dpGrid" class="summary-grid"></div>
+                        <div class="table-responsive mt-3">
+                            <table class="result-table" id="dpTable">
+                                <thead>
+                                    <tr>
+                                        <th>Komponen ΔP</th>
+                                        <th>Suction</th>
+                                        <th>Discharge</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hydraulic Data Table -->
+                <div class="result-card">
+                    <div class="result-card-header"><i class="fas fa-tachometer-alt me-2"></i> Hydraulic Data</div>
+                    <div class="result-card-body">
+                        <div class="table-responsive">
+                            <table class="result-table" id="hydraulicTable">
+                                <thead><tr><th></th><th>Suction</th><th>Discharge</th></tr></thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Head Components Visual -->
+                <div class="result-card">
+                    <div class="result-card-header"><i class="fas fa-layer-group me-2"></i> Head Components Breakdown</div>
+                    <div class="result-card-body">
+                        <div id="headBreakdown"></div>
+                    </div>
+                </div>
+
+                <!-- Pipe Fitting Loss Table -->
+                <div class="result-card">
+                    <div class="result-card-header"><i class="fas fa-wrench me-2"></i> Pipe Fitting Loss (Equivalent Length)</div>
+                    <div class="result-card-body">
+                        <div class="table-responsive">
+                            <table class="result-table" id="fittingTable">
+                                <thead>
+                                    <tr>
+                                        <th>Fitting</th>
+                                        <th>Qty Suction</th>
+                                        <th>Le Suction</th>
+                                        <th>ΔP Suction</th>
+                                        <th>Qty Discharge</th>
+                                        <th>Le Discharge</th>
+                                        <th>ΔP Discharge</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Final Results & Motor -->
+                <div class="result-card">
+                    <div class="result-card-header" style="background:#1a1a2e;color:white"><i class="fas fa-chart-line me-2"></i> Result & Motor Specification</div>
+                    <div class="result-card-body">
+                        <div id="finalResults" class="final-results"></div>
+                        <div id="motorSpec" class="motor-card mt-3"></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<script src="script.js"></script>
+<script>
+    document.getElementById('calcDate').value = new Date().toLocaleDateString('id-ID');
+</script>
+</body>
+</html>
